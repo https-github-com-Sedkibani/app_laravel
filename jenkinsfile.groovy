@@ -21,7 +21,7 @@ pipeline {
         
         stage('Build') {
             steps {
-                sh 'docker build -t php-fpm:latest -f ./infrastructure/docker/php_fpm/Dockerfile . '
+                sh 'docker build -t php-fpm:latest -f ./infrastructure/docker/php-fpm/Dockerfile . '
                 
                 sh 'docker build -t nxtya_nginx:latest -f ./infrastructure/docker/nginx/Dockerfile . '
 
