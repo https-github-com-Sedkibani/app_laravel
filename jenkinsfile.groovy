@@ -61,8 +61,9 @@ pipeline {
             steps {
                
                sh 'COMPOSE_HTTP_TIMEOUT=480 docker-compose up -d'
+               sh 'docker exec  php-fpm rm -rf composer.lock vendor'
                sh  'docker exec  php-fpm composer install --ignore-platform-reqs --optimize-autoloader --prefer-dist --no-scripts -o --no-dev'
-               sh 'chmod -R 0777 /var/www/html/storage'
+               sh ' docker exec  php-fpm chmod -R 0777 /var/www/html/storage'
                 sh 'docker exec  php-fpm php artisan key:generate'
                 sh 'docker exec  php-fpm php artisan config:cache'
                 sh 'docker exec  php-fpm php artisan view:clear'
