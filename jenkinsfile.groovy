@@ -14,7 +14,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {  
-                git branch: 'main', credentialsId: 'Sedkibani', url: 'git@github.com:https-github-com-Sedkibani/app_laravel.git'
+                git branch: 'main', credentialsId: 'SedkiBani', url: 'git@github.com:https-github-com-Sedkibani/app_laravel.git'
             }
         }
         
