@@ -21,9 +21,9 @@ pipeline {
         
         stage('Build') {
             steps {
-                sh 'docker build -t php-fpm:latest -f ./infrastructure/docker/php-fpm/Dockerfile . '
+                sh 'docker build -t banisedki/php-fpm:latest -f ./infrastructure/docker/php-fpm/Dockerfile . '
                 
-                sh 'docker build -t nxtya_nginx:latest -f ./infrastructure/docker/nginx/Dockerfile . '
+                sh 'docker build -t banisedki/nxtya_nginx:latest -f ./infrastructure/docker/nginx/Dockerfile . '
 
 			 // 'docker build -t nxtya:1.0 -f docker/Dockerfile .'
             }
@@ -40,8 +40,8 @@ pipeline {
             }      
         stage('Push to Docker Hub') {
             steps {
-                            sh 'docker push php-fpm:latest' 
-                            sh 'docker push nxtya_nginx:latest'
+                            sh 'docker push banisedki/php-fpm:latest' 
+                            sh 'docker push banisedki/nxtya_nginx:latest'
             }
         }
 
