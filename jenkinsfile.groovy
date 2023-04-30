@@ -11,7 +11,8 @@ pipeline {
           sh 'cp -r .env.example .env '  
             
              //prepare ansible-playbook 
-          sh 'ansible-playbook -i ./infrastructure/ansible/inventory/hosts.yml ./infrastructure/ansible/playbooks/install-docker.yml ' }
+          sh 'ansible-playbook -i ./infrastructure/ansible/inventory/hosts.yml ./infrastructure/ansible/playbooks/install-docker.yml '
+        }
          }
    
  
