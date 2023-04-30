@@ -7,7 +7,7 @@ pipeline {
           sh ' rm -rf docker-compose.yml'
           sh 'cp -r /var/www/infrastructure/ .'
           sh 'cp -r  /var/www/infrastructure/docker/docker-compose.yml . '
-                }
+          sh 'cp -r .env.example .env      }
          }
    
  
