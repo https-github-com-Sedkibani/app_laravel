@@ -63,9 +63,9 @@ pipeline {
                    // playbook: '/var/lib/jenkins/workspace/nxtya/ansible.yml',
                     //inventory: '/var/lib/jenkins/workspace/nxtya/inventory.ini',
                     //extras: "-e 'docker_image=nxtya:1.0'"
-                )
+                
             }
-        }
+        
     }
 
   
@@ -79,4 +79,5 @@ pipeline {
           sh   'docker system prune -af --filter "until=24h" '
             }
         }
+}
 }
