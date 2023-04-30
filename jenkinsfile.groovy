@@ -67,10 +67,6 @@ pipeline {
             }
         
     }
-
-  
-  
-   stage
        stage('Clean') {
             steps {
                // Stop and remove old  docker container
