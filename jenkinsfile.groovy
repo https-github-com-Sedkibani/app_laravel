@@ -38,25 +38,18 @@ pipeline {
                   withCredentials([string(credentialsId: 'dockerHubPwd2', variable: 'dockerHubPwd2')]) {
                // some block
                sh "docker login -u banisedki -p ${dockerHubPwd2}"
-                   
                   }
             }           
             }      
-     /*   stage('Push to Docker Hub') {
+       stage('Push to Docker Hub') {
             steps {
                             sh 'docker push banisedki/php-fpm:latest' 
                             sh 'docker push banisedki/nxtya_nginx:latest'
-            }
-        */
+                  }
+                                   }
 
-        
-        /*stage('Code Quality') {
-            steps {
-                sh 'docker run --rm nxtya:1.0 vendor/bin/phpstan analyze'
-                // Additional commands for other code quality tools like SonarQube
-            }
-        }*/
 
+     
         stage('Deploy') {
             steps {
                
