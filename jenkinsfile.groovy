@@ -1,5 +1,6 @@
 pipeline {
     agent any
+     //prepare ansible-playbook 
     stages {
     stage ('prepare')
         { steps    {
@@ -9,14 +10,10 @@ pipeline {
           sh 'cp -r /var/www/infrastructure/ .'
           sh 'cp -r  /var/www/infrastructure/docker/docker-compose.yml . '
           sh 'cp -r .env.example .env '  
-            
-             //prepare ansible-playbook 
          sh 'ansible-playbook -i ./infrastructure/ansible/inventory/hosts.yml ./infrastructure/ansible/playbooks/install-docker.yml '
         }
          }
-   
- 
-    
+  
        /* stage('Checkout') {
             steps {  
                 git branch: 'main', credentialsId: 'SedkiBani', url: 'git@github.com:https-github-com-Sedkibani/app_laravel.git'
@@ -47,8 +44,6 @@ pipeline {
                             sh 'docker push banisedki/nxtya_nginx:latest'
                   }
                                    }*/
-
-
      
         stage('Deploy') {
             steps {
