@@ -1,33 +1,37 @@
 pipeline {
     agent any
     stages {
-        stage('Prepare') {
-            steps {
-                script {
-                    // Check if the deploy file is docker-compose.yml or docker-compose-blue.yml
-                    def deployFile = fileExists('docker-compose-blue.yml') ? 'docker-compose-blue.yml' : 'docker-compose.yml'
+       stage('Prepare') {
+    steps {
+        script {
+            // Check if the deploy file is docker-compose.yml or docker-compose-blue.yml
+            def deployFile = fileExists('docker-compose-blue.yml') ? 'docker-compose-blue.yml' : 'docker-compose.yml'
 
-                    // Backup the current deploy file
-                    sh "mv ${deployFile} ${deployFile}.bak"
+            // Backup the current deploy file
+            sh "mv ${deployFile} ${deployFile}.bak"
 
-                    // Copy the new deploy file
-                    sh 'cp -r /var/www/infrastructure/docker/docker-compose-blue.yml docker-compose.yml'
+            // Copy the new deploy file
+            sh 'cp -r /var/www/infrastructure/docker/docker-compose-blue.yml docker-compose.yml'
 
-                    // Stop the containers gracefully
-                    try {
-                        sh 'docker-compose down'
-                    } catch (err) {
-                        echo "No existing containers to stop."
-                    }
-
-                    // Remove any existing volumes if needed
-                    sh 'docker-compose rm -v -f'
-
-                    // Start the new containers
-                    sh 'docker-compose up -d'
-                }
+            // Stop the containers gracefully
+            try {
+                sh 'docker-compose down'
+            } catch (err) {
+                echo "No existing containers to stop."
             }
+
+            // Remove any existing volumes if needed
+            sh 'docker-compose rm -v -f'
+
+            // Start the new containers
+            sh 'docker-compose up -d'
+            
+            // Remove orphan containers
+            sh 'docker-compose down --remove-orphans'
         }
+    }
+}
+
 
         stage('Build') {
             steps {
