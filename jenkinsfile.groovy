@@ -2,48 +2,9 @@ pipeline {
     agent any
      //prepare ansible-playbook 
     stages {
-    /*stage ('prepare')
-        { steps    {
+       stage('Prepare') {
 
-          sh 'rm -rf ./infrastructure'
-          sh ' rm -rf docker-compose.yml'
-          sh 'cp -r /var/www/infrastructure/ .'
-          sh 'cp -r  /var/www/infrastructure/docker/docker-compose.yml . '
-          sh 'cp -r .env.example .env '  
-         sh 'ansible-playbook -i ./infrastructure/ansible/inventory/hosts.yml ./infrastructure/ansible/playbooks/install-docker.yml '
-        }
-         }*/
-        
-        
-        /*stage('Prepare') {
-    steps {
-        script {
-            // Check if the deploy file is docker-compose.yml or docker-compose-blue.yml
-            def deployFile = fileExists('docker-compose-blue.yml') ? 'docker-compose-blue.yml' : 'docker-compose.yml'
-
-            // Backup the current deploy file
-            sh "mv ${deployFile} ${deployFile}.bak"
-
-            // Copy the new deploy file
-            sh 'cp -r /var/www/infrastructure/docker/docker-compose-blue.yml docker-compose.yml'
-
-            // Stop the containers gracefully
-            try {
-                sh 'docker-compose down'
-            } catch (err) {
-                echo "No existing containers to stop."
-            }
-
-            // Remove any existing volumes if needed
-            sh 'docker-compose rm -v -f'
-
-            // Start the new containers
-            sh 'docker-compose up -d'
-        }
-    }
-}*/
-           stage('Prepare') {
-            steps {
+              steps {
                 // Check if the deploy file is docker-compose.yml or docker-compose-blue.yml
                 def deployFile = fileExists('docker-compose-blue.yml') ? 'docker-compose-blue.yml' : 'docker-compose.yml'
 
@@ -66,7 +27,7 @@ pipeline {
                 // Start the new containers
                 sh 'docker-compose up -d'
             }
-        }
+        
   
        /* stage('Checkout') {
             steps {  
