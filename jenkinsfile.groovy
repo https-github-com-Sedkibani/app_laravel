@@ -42,7 +42,7 @@ pipeline {
         }
     }
 }*/
- stage('Prepare') {
+           stage('Prepare') {
             steps {
                 // Check if the deploy file is docker-compose.yml or docker-compose-blue.yml
                 def deployFile = fileExists('docker-compose-blue.yml') ? 'docker-compose-blue.yml' : 'docker-compose.yml'
