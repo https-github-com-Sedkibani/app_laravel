@@ -57,12 +57,7 @@ pipeline {
                 sh 'docker exec  php-fpm php artisan view:clear'
                 sh 'docker exec  php-fpm php artisan config:clear'
         
-                // Use Ansible playbook to deploy to DigitalOcean server
-                //ansiblePlaybook(
-                   // playbook: '/var/lib/jenkins/workspace/nxtya/ansible.yml',
-                    //inventory: '/var/lib/jenkins/workspace/nxtya/inventory.ini',
-                    //extras: "-e 'docker_image=nxtya:1.0'"
-                
+       
             }
         
     }
