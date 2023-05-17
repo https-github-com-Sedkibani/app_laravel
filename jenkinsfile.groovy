@@ -2,17 +2,42 @@ pipeline {
     agent any
      //prepare ansible-playbook 
     stages {
-    stage ('prepare')
+    /*stage ('prepare')
         { steps    {
                
-        /*  sh 'rm -rf ./infrastructure'
-          sh ' rm -rf docker-compose.yml'*/
+          sh 'rm -rf ./infrastructure'
+          sh ' rm -rf docker-compose.yml'
           sh 'cp -r /var/www/infrastructure/ .'
           sh 'cp -r  /var/www/infrastructure/docker/docker-compose.yml . '
           sh 'cp -r .env.example .env '  
          sh 'ansible-playbook -i ./infrastructure/ansible/inventory/hosts.yml ./infrastructure/ansible/playbooks/install-docker.yml '
         }
-         }
+         }*/
+        
+        stage('Prepare') {
+    steps {
+        script {
+            // Backup the current docker-compose.yml
+            sh 'mv docker-compose.yml docker-compose-blue.yml.bak'
+            // Copy the blue version of docker-compose.yml
+            sh 'cp -r /var/www/infrastructure/docker/docker-compose-blue.yml docker-compose.yml'
+            
+            // Stop the containers gracefully
+            try {
+                sh 'docker-compose down'
+            } catch (err) {
+                echo "No existing containers to stop."
+            }
+            
+            // Remove any existing volumes if needed
+            sh 'docker-compose rm -v -f'
+            
+            // Start the new containers
+            sh 'docker-compose up -d'
+        }
+    }
+}
+
   
        /* stage('Checkout') {
             steps {  
