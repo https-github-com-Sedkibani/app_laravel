@@ -46,7 +46,10 @@ pipeline {
                                    }*/
      
         stage('Deploy') {
-            steps {
+             environment {
+                COMPOSE_FILE = 'docker-compose-blue.yml'
+            }
+           /* steps {
                
                sh 'COMPOSE_HTTP_TIMEOUT=480 docker-compose up -d'
                sh 'docker exec  php-fpm rm -rf composer.lock vendor'
@@ -60,7 +63,18 @@ pipeline {
        
             }
         
-    }
+    }*/
+             steps {
+                sh 'COMPOSE_HTTP_TIMEOUT=480 docker-compose up -d'
+                sh 'docker exec php-fpm-blue rm -rf composer.lock vendor'
+                sh 'docker exec php-fpm-blue composer install --ignore-platform-reqs --optimize-autoloader --prefer-dist --no-scripts -o --no-dev'
+                sh 'docker exec php-fpm-blue chmod -R 0777 /var/www/html/storage'
+                sh 'docker exec php-fpm-blue php artisan key:generate'
+                sh 'docker exec php-fpm-blue php artisan config:cache'
+                sh 'docker exec php-fpm-blue php artisan view:clear'
+                sh 'docker exec php-fpm-blue php artisan config:clear'
+            }
+        }
        stage('Clean') {
             steps {
                // Stop and remove old  docker container
