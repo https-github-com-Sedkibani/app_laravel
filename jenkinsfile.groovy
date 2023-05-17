@@ -3,27 +3,29 @@ pipeline {
     stages {
         stage('Prepare') {
             steps {
-                // Check if the deploy file is docker-compose.yml or docker-compose-blue.yml
-                def deployFile = fileExists('docker-compose-blue.yml') ? 'docker-compose-blue.yml' : 'docker-compose.yml'
+                script {
+                    // Check if the deploy file is docker-compose.yml or docker-compose-blue.yml
+                    def deployFile = fileExists('docker-compose-blue.yml') ? 'docker-compose-blue.yml' : 'docker-compose.yml'
 
-                // Backup the current deploy file
-                sh "mv ${deployFile} ${deployFile}.bak"
+                    // Backup the current deploy file
+                    sh "mv ${deployFile} ${deployFile}.bak"
 
-                // Copy the new deploy file
-                sh 'cp -r /var/www/infrastructure/docker/docker-compose-blue.yml docker-compose.yml'
+                    // Copy the new deploy file
+                    sh 'cp -r /var/www/infrastructure/docker/docker-compose-blue.yml docker-compose.yml'
 
-                // Stop the containers gracefully
-                try {
-                    sh 'docker-compose down'
-                } catch (err) {
-                    echo "No existing containers to stop."
+                    // Stop the containers gracefully
+                    try {
+                        sh 'docker-compose down'
+                    } catch (err) {
+                        echo "No existing containers to stop."
+                    }
+
+                    // Remove any existing volumes if needed
+                    sh 'docker-compose rm -v -f'
+
+                    // Start the new containers
+                    sh 'docker-compose up -d'
                 }
-
-                // Remove any existing volumes if needed
-                sh 'docker-compose rm -v -f'
-
-                // Start the new containers
-                sh 'docker-compose up -d'
             }
         }
 
@@ -47,8 +49,8 @@ pipeline {
                 COMPOSE_FILE = 'docker-compose.yml'
             }
             steps {
-                // Verify if the docker-compose.yml file exists
                 script {
+                    // Verify if the docker-compose.yml file exists
                     if (!fileExists(COMPOSE_FILE)) {
                         error "File '${COMPOSE_FILE}' does not exist."
                     }
@@ -67,8 +69,8 @@ pipeline {
                 COMPOSE_FILE = 'docker-compose-blue.yml'
             }
             steps {
-                // Verify if the docker-compose-blue.yml file exists
                 script {
+                    // Verify if the docker-compose-blue.yml file exists
                     if (!fileExists(COMPOSE_FILE)) {
                         error "File '${COMPOSE_FILE}' does not exist."
                     }
