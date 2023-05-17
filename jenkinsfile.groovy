@@ -2,7 +2,7 @@ pipeline {
     agent any
      //prepare ansible-playbook 
     stages {
-   /* stage ('prepare')
+    stage ('prepare')
         { steps    {
                
           sh 'rm -rf ./infrastructure'
@@ -12,10 +12,10 @@ pipeline {
           sh 'cp -r .env.example .env '  
          sh 'ansible-playbook -i ./infrastructure/ansible/inventory/hosts.yml ./infrastructure/ansible/playbooks/install-docker.yml '
         }
-         }*/
+         }
         
         
-        stage('Prepare') {
+        /*stage('Prepare') {
     steps {
         script {
             // Check if the deploy file is docker-compose.yml or docker-compose-blue.yml
@@ -41,7 +41,7 @@ pipeline {
             sh 'docker-compose up -d'
         }
     }
-}
+}*/
 
   
        /* stage('Checkout') {
