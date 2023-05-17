@@ -88,46 +88,52 @@ pipeline {
         
     }*/
         
-          stage('Deploy with docker-compose.yml') {
-            environment {
-                COMPOSE_FILE = 'docker-compose.yml'
-            }
-            steps {
-                // Verify if the docker-compose.yml file exists
-                script {
-                    if (!fileExists(COMPOSE_FILE)) {
-                        error "File '${COMPOSE_FILE}' does not exist."
-                    }
-                }
-
-                // Deploy using docker-compose.yml
-                sh 'COMPOSE_HTTP_TIMEOUT=480 docker-compose up -d'
+         stage('Deploy with docker-compose.yml') {
+    environment {
+        COMPOSE_FILE = 'docker-compose.yml'
+    }
+    steps {
+        // Verify if the docker-compose.yml file exists
+        script {
+            if (!fileExists(COMPOSE_FILE)) {
+                error "File '${COMPOSE_FILE}' does not exist."
             }
         }
 
-        stage('Deploy with docker-compose-blue.yml') {
-            environment {
-                COMPOSE_FILE = 'docker-compose-blue.yml'
-            }
-            steps {
-                // Verify if the docker-compose-blue.yml file exists
-                script {
-                    if (!fileExists(COMPOSE_FILE)) {
-                        error "File '${COMPOSE_FILE}' does not exist."
-                    }
-                }
+        // Deploy using docker-compose.yml
+        sh 'COMPOSE_HTTP_TIMEOUT=480 docker-compose up -d'
+        
+        // Additional steps for docker-compose.yml
+        // Add your specific steps here
+    }
+}
 
-                // Deploy using docker-compose-blue.yml
-                sh 'COMPOSE_HTTP_TIMEOUT=480 docker-compose up -d'
-                sh 'docker exec php-fpm-blue rm -rf composer.lock vendor'
-                sh 'docker exec php-fpm-blue composer install --ignore-platform-reqs --optimize-autoloader --prefer-dist --no-scripts -o --no-dev'
-                sh 'docker exec php-fpm-blue chmod -R 0777 /var/www/html/storage'
-                sh 'docker exec php-fpm-blue php artisan key:generate'
-                sh 'docker exec php-fpm-blue php artisan config:cache'
-                sh 'docker exec php-fpm-blue php artisan view:clear'
-                sh 'docker exec php-fpm-blue php artisan config:clear'
+stage('Deploy with docker-compose-blue.yml') {
+    environment {
+        COMPOSE_FILE = 'docker-compose-blue.yml'
+    }
+    steps {
+        // Verify if the docker-compose-blue.yml file exists
+        script {
+            if (!fileExists(COMPOSE_FILE)) {
+                error "File '${COMPOSE_FILE}' does not exist."
             }
         }
+
+        // Deploy using docker-compose-blue.yml
+        sh 'COMPOSE_HTTP_TIMEOUT=480 docker-compose up -d'
+        
+        // Additional steps for docker-compose-blue.yml
+        sh 'docker exec php-fpm-blue rm -rf composer.lock vendor'
+        sh 'docker exec php-fpm-blue composer install --ignore-platform-reqs --optimize-autoloader --prefer-dist --no-scripts -o --no-dev'
+        sh 'docker exec php-fpm-blue chmod -R 0777 /var/www/html/storage'
+        sh 'docker exec php-fpm-blue php artisan key:generate'
+        sh 'docker exec php-fpm-blue php artisan config:cache'
+        sh 'docker exec php-fpm-blue php artisan view:clear'
+        sh 'docker exec php-fpm-blue php artisan config:clear'
+    }
+}
+
         
         
        stage('Clean') {
