@@ -6,10 +6,10 @@ pipeline {
         { steps    {
                
         /*  sh 'rm -rf ./infrastructure'
-          sh ' rm -rf docker-compose.yml'
+          sh ' rm -rf docker-compose.yml'*/
           sh 'cp -r /var/www/infrastructure/ .'
           sh 'cp -r  /var/www/infrastructure/docker/docker-compose.yml . '
-          sh 'cp -r .env.example .env '  */
+          sh 'cp -r .env.example .env '  
          sh 'ansible-playbook -i ./infrastructure/ansible/inventory/hosts.yml ./infrastructure/ansible/playbooks/install-docker.yml '
         }
          }
