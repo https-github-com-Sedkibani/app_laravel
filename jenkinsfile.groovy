@@ -48,13 +48,11 @@ pipeline {
    stage('Deploy with docker-compose-blue.yml') {
     steps {
         script {
-            // Check if docker-compose.yml exists
-            def composeFile = 'docker-compose.yml'
-            if (fileExists('docker-compose-blue.yml')) {
-                composeFile = 'docker-compose-blue.yml'
-            } else {
-                echo "docker-compose-blue.yml does not exist. Deploying with docker-compose.yml."
-            }
+            // Check if docker-compose-blue.yml exists
+            def composeFile = fileExists('docker-compose-blue.yml') ? 'docker-compose-blue.yml' : 'docker-compose.yml'
+
+            // Output the selected compose file for logging purposes
+            echo "Using compose file: ${composeFile}"
 
             // Verify if the selected compose file exists
             if (!fileExists(composeFile)) {
@@ -87,6 +85,7 @@ pipeline {
         }
     }
 }
+
 
 
         stage('Clean') {
