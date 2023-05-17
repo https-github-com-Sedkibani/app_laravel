@@ -46,46 +46,47 @@ pipeline {
             }
         }
    stage('Deploy with docker-compose-blue.yml') {
-            environment {
-                COMPOSE_FILE = fileExists('docker-compose.yml') ? 'docker-compose-blue.yml' : 'docker-compose.yml'
-            }
-            steps {
-                // Verify if the selected compose file exists
-                script {
-                    if (!fileExists(COMPOSE_FILE)) {
-                        error "File '${COMPOSE_FILE}' does not exist."
-                    }
-                }
+    steps {
+        // Check if docker-compose.yml exists
+        def composeFile = 'docker-compose.yml'
+        if (fileExists('docker-compose-blue.yml')) {
+            composeFile = 'docker-compose-blue.yml'
+        } else {
+            echo "docker-compose-blue.yml does not exist. Deploying with docker-compose.yml."
+        }
 
-                // Deploy using the selected compose file
-                sh "COMPOSE_HTTP_TIMEOUT=480 docker-compose -f ${COMPOSE_FILE} up -d"
-
-                // Additional steps for the deployment
-                if (COMPOSE_FILE == 'docker-compose-blue.yml') {
-                    sh 'docker exec php-fpm-blue rm -rf composer.lock vendor'
-                    sh 'docker exec php-fpm-blue composer install --ignore-platform-reqs --optimize-autoloader --prefer-dist --no-scripts -o --no-dev'
-                    sh 'docker exec php-fpm-blue chmod -R 0777 /var/www/html/storage'
-                    sh 'docker exec php-fpm-blue php artisan key:generate'
-                    sh 'docker exec php-fpm-blue php artisan config:cache'
-                    sh 'docker exec php-fpm-blue php artisan view:clear'
-                    sh 'docker exec php-fpm-blue php artisan config:clear'
-                         
-
-                } else {
-                      sh 'docker exec php-fpm rm -rf composer.lock vendor'
-                    sh 'docker exec php-fpm composer install --ignore-platform-reqs --optimize-autoloader --prefer-dist --no-scripts -o --no-dev'
-                    sh 'docker exec php-fpm chmod -R 0777 /var/www/html/storage'
-                    sh 'docker exec php-fpm php artisan key:generate'
-                    sh 'docker exec php-fpm php artisan config:cache'
-                    sh 'docker exec php-fpm php artisan view:clear'
-                    sh 'docker exec php-fpm php artisan config:clear'
-                                
-
-                }
-                            sh 'docker-compose down --remove-orphans'
-
+        // Verify if the selected compose file exists
+        script {
+            if (!fileExists(composeFile)) {
+                error "File '${composeFile}' does not exist."
             }
         }
+
+        // Deploy using the selected compose file
+        sh "COMPOSE_HTTP_TIMEOUT=480 docker-compose -f ${composeFile} up -d"
+
+        // Additional steps for the deployment
+        if (composeFile == 'docker-compose-blue.yml') {
+            sh 'docker exec php-fpm-blue rm -rf composer.lock vendor'
+            sh 'docker exec php-fpm-blue composer install --ignore-platform-reqs --optimize-autoloader --prefer-dist --no-scripts -o --no-dev'
+            sh 'docker exec php-fpm-blue chmod -R 0777 /var/www/html/storage'
+            sh 'docker exec php-fpm-blue php artisan key:generate'
+            sh 'docker exec php-fpm-blue php artisan config:cache'
+            sh 'docker exec php-fpm-blue php artisan view:clear'
+            sh 'docker exec php-fpm-blue php artisan config:clear'
+        } else {
+            sh 'docker exec php-fpm rm -rf composer.lock vendor'
+            sh 'docker exec php-fpm composer install --ignore-platform-reqs --optimize-autoloader --prefer-dist --no-scripts -o --no-dev'
+            sh 'docker exec php-fpm chmod -R 0777 /var/www/html/storage'
+            sh 'docker exec php-fpm php artisan key:generate'
+            sh 'docker exec php-fpm php artisan config:cache'
+            sh 'docker exec php-fpm php artisan view:clear'
+            sh 'docker exec php-fpm php artisan config:clear'
+        }
+
+        sh 'docker-compose down --remove-orphans'
+    }
+}
 
 
         stage('Clean') {
