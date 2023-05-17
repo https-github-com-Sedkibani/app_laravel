@@ -27,7 +27,7 @@ pipeline {
                 // Start the new containers
                 sh 'docker-compose up -d'
             }
-        
+       }
   
        /* stage('Checkout') {
             steps {  
