@@ -16,28 +16,33 @@ pipeline {
         
         
         stage('Prepare') {
-            steps {
-                script {
-                    // Backup the current docker-compose.yml
-                    sh 'mv docker-compose.yml docker-compose-blue.yml.bak'
-                    // Copy the blue version of docker-compose.yml
-                    sh 'cp -r /var/www/infrastructure/docker/docker-compose-blue.yml docker-compose.yml'
-                    
-                    // Stop the containers gracefully
-                    try {
-                        sh 'docker-compose down'
-                    } catch (err) {
-                        echo "No existing containers to stop."
-                    }
-                    
-                    // Remove any existing volumes if needed
-                    sh 'docker-compose rm -v -f'
-                    
-                    // Start the new containers
-                    sh 'docker-compose up -d'
-                }
+    steps {
+        script {
+            // Check if the deploy file is docker-compose.yml or docker-compose-blue.yml
+            def deployFile = fileExists('docker-compose-blue.yml') ? 'docker-compose-blue.yml' : 'docker-compose.yml'
+
+            // Backup the current deploy file
+            sh "mv ${deployFile} ${deployFile}.bak"
+
+            // Copy the new deploy file
+            sh 'cp -r /var/www/infrastructure/docker/docker-compose-blue.yml docker-compose.yml'
+
+            // Stop the containers gracefully
+            try {
+                sh 'docker-compose down'
+            } catch (err) {
+                echo "No existing containers to stop."
             }
+
+            // Remove any existing volumes if needed
+            sh 'docker-compose rm -v -f'
+
+            // Start the new containers
+            sh 'docker-compose up -d'
         }
+    }
+}
+
   
        /* stage('Checkout') {
             steps {  
