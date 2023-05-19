@@ -9,6 +9,16 @@ pipeline {
     }
 
     stages {
+        pipeline {
+    agent any
+
+    environment {
+        INFRA_DIR = ''
+        COMPOSE_FILE = ''
+        PREVIOUS_BUILD = ''
+    }
+
+    stages {
         stage('Prepare') {
             steps {
                 script {
@@ -16,27 +26,30 @@ pipeline {
                     if (previousBuild != null) {
                         def previousBuildResult = previousBuild.result
                         if (previousBuildResult == 'SUCCESS') {
-                            PREVIOUS_BUILD = 'green'
-                        } else if (previousBuildResult == 'ABORTED' || previousBuildResult == 'FAILURE') {
-                            PREVIOUS_BUILD = 'blue'
+                            PREVIOUS_BUILD = 'infra1'
+                        } else {
+                            PREVIOUS_BUILD = 'infra'
                         }
-                    }
-
-                    if (PREVIOUS_BUILD == 'green') {
-                        COMPOSE_FILE = 'docker-compose.yml'
-                        sh "cp -r /var/www/${BLUE_INFRA_DIR}/ ."
-                        sh "cp -r /var/www/${BLUE_INFRA_DIR}/docker/docker-compose.yml ."
                     } else {
-                        COMPOSE_FILE = 'docker-compose-blue.yml'
-                        sh "cp -r /var/www/${GREEN_INFRA_DIR}/ ."
-                        sh "cp -r /var/www/${GREEN_INFRA_DIR}/docker/docker-compose-blue.yml ./docker-compose.yml"
+                        PREVIOUS_BUILD = 'infra'
                     }
 
-                    sh 'cp -r .env.example .env'
-                    sh "ansible-playbook -i ./ansible/inventory/hosts.yml ./${GREEN_INFRA_DIR}/ansible/playbooks/install-docker.yml"
+                    if (PREVIOUS_BUILD == 'infra1') {
+                        INFRA_DIR = 'infrastructure1'
+                        COMPOSE_FILE = 'docker-compose-blue.yml'
+                    } else {
+                        INFRA_DIR = 'infrastructure'
+                        COMPOSE_FILE = 'docker-compose.yml'
+                    }
+
+                    sh "cp -r /var/www/${INFRA_DIR} ."
+                    sh "cp -r /var/www/${INFRA_DIR}/docker/${COMPOSE_FILE} ./docker-compose.yml"
+                    sh "cp -r .env.example .env"
+                    sh "ansible-playbook -i ./${INFRA_DIR}/ansible/inventory/hosts.yml ./${INFRA_DIR}/ansible/playbooks/install-docker.yml"
                 }
             }
         }
+
 
         stage('Build') {
             steps {
