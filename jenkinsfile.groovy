@@ -67,29 +67,66 @@ pipeline {
             def blueExists = fileExists('docker-compose-blue.yml')
             def greenExists = fileExists('docker-compose.yml')
             
-            if (!blueExists && !greenExists) {
-                // No blue or green environment, install using docker-compose.yml
-                COMPOSE_FILE = 'docker-compose.yml'
-                env.PREVIOUS_BUILD = ''
-            } else if (greenExists) {
-                // Green environment exists, install using docker-compose.yml
-                COMPOSE_FILE = 'docker-compose.yml'
-                env.PREVIOUS_BUILD = ''
-            } else if (blueExists) {
-                // Blue environment exists, install using docker-compose-blue.yml
+            if (blueExists && greenExists) {
+                // Both blue and green environments exist
                 COMPOSE_FILE = 'docker-compose-blue.yml'
                 env.PREVIOUS_BUILD = 'blue'
-            }
-            
-            if (blueExists || greenExists) {
-                sh "docker exec php-fpm${env.PREVIOUS_BUILD == 'blue' ? '-blue' : ''} composer install --ignore-platform-reqs --optimize-autoloader --prefer-dist --no-scripts -o --no-dev"
-                sh "docker exec php-fpm${env.PREVIOUS_BUILD == 'blue' ? '-blue' : ''} chmod -R 0777 /var/www/html/storage"
-                sh "docker exec php-fpm${env.PREVIOUS_BUILD == 'blue' ? '-blue' : ''} php artisan key:generate"
-                sh "docker exec php-fpm${env.PREVIOUS_BUILD == 'blue' ? '-blue' : ''} php artisan config:cache"
-                sh "docker exec php-fpm${env.PREVIOUS_BUILD == 'blue' ? '-blue' : ''} php artisan view:clear"
-                sh "docker exec php-fpm${env.PREVIOUS_BUILD == 'blue' ? '-blue' : ''} php artisan config:clear"
+                
+                def blueComposerExists = sh(
+                    script: 'docker exec php-fpm-blue which composer',
+                    returnStatus: true
+                )
+                
+                if (blueComposerExists == 0) {
+                    // Blue environment has composer, install with blue
+                    sh 'docker exec php-fpm-blue composer install --ignore-platform-reqs --optimize-autoloader --prefer-dist --no-scripts -o --no-dev'
+                    sh 'docker exec php-fpm-blue chmod -R 0777 /var/www/html/storage'
+                    sh 'docker exec php-fpm-blue php artisan key:generate'
+                    sh 'docker exec php-fpm-blue php artisan config:cache'
+                    sh 'docker exec php-fpm-blue php artisan view:clear'
+                    sh 'docker exec php-fpm-blue php artisan config:clear'
+                } else {
+                    // Blue environment does not have composer, install with green
+                    sh 'docker exec php-fpm composer install --ignore-platform-reqs --optimize-autoloader --prefer-dist --no-scripts -o --no-dev'
+                    sh 'docker exec php-fpm chmod -R 0777 /var/www/html/storage'
+                    sh 'docker exec php-fpm php artisan key:generate'
+                    sh 'docker exec php-fpm php artisan config:cache'
+                    sh 'docker exec php-fpm php artisan view:clear'
+                    sh 'docker exec php-fpm php artisan config:clear'
+                }
+            } else if (blueExists) {
+                // Only blue environment exists
+                COMPOSE_FILE = 'docker-compose-blue.yml'
+                env.PREVIOUS_BUILD = 'blue'
+                sh 'docker exec php-fpm-blue composer install --ignore-platform-reqs --optimize-autoloader --prefer-dist --no-scripts -o --no-dev'
+                sh 'docker exec php-fpm-blue chmod -R 0777 /var/www/html/storage'
+                sh 'docker exec php-fpm-blue php artisan key:generate'
+                sh 'docker exec php-fpm-blue php artisan config:cache'
+                sh 'docker exec php-fpm-blue php artisan view:clear'
+                sh 'docker exec php-fpm-blue php artisan config:clear'
+            } else if (greenExists) {
+                // Only green environment exists
+                COMPOSE_FILE = 'docker-compose.yml'
+                env.PREVIOUS_BUILD = ''
+                sh 'docker exec php-fpm composer install --ignore-platform-reqs --optimize-autoloader --prefer-dist --no-scripts -o --no-dev'
+                sh 'docker exec php-fpm chmod -R 0777 /var/www/html/storage'
+                sh 'docker exec php-fpm php artisan key:generate'
+                sh 'docker exec php-fpm php artisan config:cache'
+                sh 'docker exec php-fpm php artisan view:clear'
+                sh 'docker exec php-fpm php artisan config:clear'
+            } else {
+                // No blue or green environment exists, install with green
+                COMPOSE_FILE = 'docker-compose.yml'
+                env.PREVIOUS_BUILD = ''
+                sh 'docker exec php-fpm composer install --ignore-platform-reqs --optimize-autoloader --prefer-dist --no-scripts -o --no-dev'
+                sh 'docker exec php-fpm chmod -R 0777 /var/www/html/storage'
+                sh 'docker exec php-fpm php artisan key:generate'
+                sh 'docker exec php-fpm php artisan config:cache'
+                sh 'docker exec php-fpm php artisan view:clear'
+                sh 'docker exec php-fpm php artisan config:clear'
             }
         }
+    
     
 
             
