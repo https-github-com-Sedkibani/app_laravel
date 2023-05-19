@@ -77,7 +77,7 @@ pipeline {
                 // Run health checks and tests
                 // Modify the commands below based on your specific testing needs
                 //sh 'docker exec php-fpm vendor/bin/phpunit'
-                //sh 'docker exec webserver curl http://localhost:81/health-check'
+                sh 'docker exec webserver curl http://localhost:81/health-check'
             }
         }
 
