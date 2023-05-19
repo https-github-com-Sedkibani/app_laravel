@@ -44,9 +44,21 @@ pipeline {
                     if (env.PREVIOUS_BUILD == 'blue') {
                         COMPOSE_FILE = 'docker-compose.yml'
                         env.PREVIOUS_BUILD = ''
+                          sh 'docker exec php-fpm composer install --ignore-platform-reqs --optimize-autoloader --prefer-dist --no-scripts -o --no-dev'
+                sh 'docker exec php-fpm chmod -R 0777 /var/www/html/storage'
+                sh 'docker exec php-fpm php artisan key:generate'
+                sh 'docker exec php-fpm php artisan config:cache'
+                sh 'docker exec php-fpm php artisan view:clear'
+                sh 'docker exec php-fpm php artisan config:clear'
                     } else {
                         COMPOSE_FILE = 'docker-compose-blue.yml'
                         env.PREVIOUS_BUILD = 'blue'
+                          sh 'docker exec php-fpm-blue composer install --ignore-platform-reqs --optimize-autoloader --prefer-dist --no-scripts -o --no-dev'
+                sh 'docker exec php-fpm-blue chmod -R 0777 /var/www/html/storage'
+                sh 'docker exec php-fpm php-blue artisan key:generate'
+                sh 'docker exec php-fpm php-blue artisan config:cache'
+                sh 'docker exec php-fpm php-blue artisan view:clear'
+                sh 'docker exec php-fpm php-blue artisan config:clear'
                     }
                 }
 
@@ -63,12 +75,7 @@ pipeline {
                 sh "docker-compose -f ${COMPOSE_FILE} up -d"
 
                 // Execute post-deployment tasks
-                sh 'docker exec php-fpm composer install --ignore-platform-reqs --optimize-autoloader --prefer-dist --no-scripts -o --no-dev'
-                sh 'docker exec php-fpm chmod -R 0777 /var/www/html/storage'
-                sh 'docker exec php-fpm php artisan key:generate'
-                sh 'docker exec php-fpm php artisan config:cache'
-                sh 'docker exec php-fpm php artisan view:clear'
-                sh 'docker exec php-fpm php artisan config:clear'
+              
 
                 // Run health checks and tests
                 // Modify the commands below based on your specific testing needs
