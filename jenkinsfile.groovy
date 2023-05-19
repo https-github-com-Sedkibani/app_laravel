@@ -46,7 +46,6 @@ pipeline {
              sh "rm -rf ./infrastructure"
                sh "cp -r /var/www/infrastructure/  "
             sh "cp -r /var/www/infrastructure/ ."
-sh "cp -r ./infrastructure/docker/docker-compose-${COMPOSE_FILE} /infrastructure1/docker/"
             sh "cp -r .env.example .env"
             sh "ansible-playbook -i ./infrastructure/ansible/inventory/hosts.yml ./infrastructure/ansible/playbooks/install-docker.yml"
         }
