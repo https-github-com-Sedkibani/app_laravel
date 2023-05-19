@@ -66,10 +66,10 @@ pipeline {
                 sh "docker-compose -f ${COMPOSE_FILE} down --remove-orphans"
 
                 // Remove orphan containers (if any)
-                sh "docker-compose -f ${COMPOSE_FILE} rm -f -v"
+                //sh "docker-compose -f ${COMPOSE_FILE} rm -f -v"
 
                 // Remove unused networks (if any)
-                sh 'docker network prune -f'
+               // sh 'docker network prune -f'
 
                 // Start the desired environment
                 sh "docker-compose -f ${COMPOSE_FILE} up -d"
