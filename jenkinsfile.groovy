@@ -11,19 +11,30 @@ pipeline {
     stages {
         stage('Prepare') {
             steps {
-                // Your existing prepare steps here
+                sh 'rm -rf ./infrastructure'
+                sh 'rm -rf docker-compose.yml'
+                sh 'cp -r /var/www/infrastructure/ .'
+                sh 'cp -r /var/www/infrastructure/docker/docker-compose.yml docker-compose.yml'
+                sh 'cp -r .env.example .env'
+                sh 'ansible-playbook -i ./infrastructure/ansible/inventory/hosts.yml ./infrastructure/ansible/playbooks/install-docker.yml'
             }
         }
 
         stage('Build') {
             steps {
-                // Your existing build steps here
+                // Blue environment
+                sh 'docker-compose -f ${BLUE_COMPOSE_FILE} build'
+
+                // Green environment
+                sh 'docker-compose -f ${GREEN_COMPOSE_FILE} build'
             }
         }
 
         stage('Docker Login') {
             steps {
-                // Your existing Docker login steps here
+                withCredentials([string(credentialsId: 'dockerHubPwd2', variable: 'dockerHubPwd2')]) {
+                    sh "docker login -u banisedki -p ${dockerHubPwd2}"
+                }
             }
         }
 
@@ -42,12 +53,8 @@ pipeline {
                 // Stop the inactive environment
                 sh "docker-compose -f ${COMPOSE_FILE} down"
 
-                // Remove orphans containers and networks
-                sh "docker-compose -f ${COMPOSE_FILE} down --remove-orphans"
-                sh "docker network rm nxtya_laravel_app-network"
-
-                // Start the updated environment
-                sh "docker-compose -f ${COMPOSE_FILE} up -d"
+                // Remove orphans containers
+                sh "docker-compose -f ${COMPOSE_FILE} up -d --remove-orphans"
 
                 // Execute post-deployment tasks
                 sh 'docker exec php-fpm rm -rf composer.lock vendor'
@@ -57,12 +64,17 @@ pipeline {
                 sh 'docker exec php-fpm php artisan config:cache'
                 sh 'docker exec php-fpm php artisan view:clear'
                 sh 'docker exec php-fpm php artisan config:clear'
+
+                // Run health checks and tests
+                // Modify the commands below based on your specific testing needs
+                sh 'docker exec php-fpm vendor/bin/phpunit'
+                sh 'docker exec webserver curl http://localhost:81/health-check'
             }
         }
 
         stage('Clean') {
             steps {
-                // Your existing clean steps here
+                sh 'docker system prune -af --filter "until=24h"'
             }
         }
     }
