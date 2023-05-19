@@ -49,7 +49,7 @@ pipeline {
         }
     }
 }*/
-        stage('Prepare') {
+        /*stage('Prepare') {
     steps {
         script {
             def blueExists = fileExists('docker-compose-blue.yml')
@@ -118,7 +118,7 @@ pipeline {
         }
     }
 }
-
+*/
 
       
             stage('Build') {
