@@ -82,7 +82,7 @@ pipeline {
                 sh 'docker exec  php-fpm-blue php artisan config:cache'
                 sh 'docker exec  php-fpm-blue php artisan view:clear'
                 sh 'docker exec  php-fpm-blue php artisan config:clear'
-                sh 'docker-compose -f docker-compose.yml down --remove-orphans'
+             //   sh 'docker-compose -f docker-compose.yml down --remove-orphans'
                     } else {
                         COMPOSE_FILE = 'docker-compose.yml'
                         env.PREVIOUS_BUILD = ''
@@ -95,7 +95,7 @@ pipeline {
                 sh 'docker exec  php-fpm php artisan config:cache'
                 sh 'docker exec  php-fpm php artisan view:clear'
                 sh 'docker exec  php-fpm php artisan config:clear'
-                                        sh 'docker-compose -f docker-compose-blue.yml down --remove-orphans'
+                                        //sh 'docker-compose -f docker-compose-blue.yml down --remove-orphans'
 
                   //            sh 'rm -rf ./infrastructure'
               // sh 'rm -rf docker-compose.yml'
