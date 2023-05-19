@@ -9,16 +9,6 @@ pipeline {
     }
 
     stages {
-        pipeline {
-    agent any
-
-    environment {
-        INFRA_DIR = ''
-        COMPOSE_FILE = ''
-        PREVIOUS_BUILD = ''
-    }
-
-    stages {
         stage('Prepare') {
             steps {
                 script {
