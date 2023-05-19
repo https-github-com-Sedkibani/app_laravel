@@ -57,7 +57,7 @@ pipeline {
                 sh 'docker exec  php-fpm php artisan view:clear'
                 sh 'docker exec  php-fpm php artisan config:clear'
         
-          
+           sh 'docker-compose -f docker-compose.yml down --remove-orphans'
                 
             }
         
