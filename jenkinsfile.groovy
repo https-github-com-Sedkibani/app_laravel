@@ -41,7 +41,7 @@ pipeline {
             }
              sh  "cp -r ./infrastructure ./infrastructure1"
            
-            sh ' cp -r ./infrastructure/docker/docker-compose-{COMPOSE_FILE}.yml  /infrastructure1/docker/'
+            sh ' cp -r ./infrastructure/docker/docker-compose-{COMPOSE_FILE}.yml  /var/www/infrastructure1/docker/'
             sh "rm -rf docker-compose.yml"
              sh "rm -rf ./infrastructure"
                sh "cp -r /var/www/infrastructure/  "
