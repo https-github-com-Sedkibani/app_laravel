@@ -23,10 +23,10 @@ pipeline {
         stage('Build') {
             steps {
                 // Blue environment
-                sh 'docker-compose -f ${BLUE_COMPOSE_FILE} build'
+                sh "docker-compose -f ${BLUE_COMPOSE_FILE} build"
 
                 // Green environment
-                sh 'docker-compose -f ${GREEN_COMPOSE_FILE} build'
+                sh "docker-compose -f ${GREEN_COMPOSE_FILE} build"
             }
         }
 
@@ -51,13 +51,18 @@ pipeline {
                 }
 
                 // Stop the inactive environment
-                sh "docker-compose -f ${COMPOSE_FILE} down"
+                sh "docker-compose -f ${COMPOSE_FILE} down --remove-orphans"
 
-                // Remove orphans containers
-                sh "docker-compose -f ${COMPOSE_FILE} up -d --remove-orphans"
+                // Remove orphan containers (if any)
+                sh "docker-compose -f ${COMPOSE_FILE} rm -f -v"
+
+                // Remove unused networks (if any)
+                sh 'docker network prune -f'
+
+                // Start the desired environment
+                sh "docker-compose -f ${COMPOSE_FILE} up -d"
 
                 // Execute post-deployment tasks
-                //sh 'docker exec php-fpm rm -rf composer.lock vendor'
                 sh 'docker exec php-fpm composer install --ignore-platform-reqs --optimize-autoloader --prefer-dist --no-scripts -o --no-dev'
                 sh 'docker exec php-fpm chmod -R 0777 /var/www/html/storage'
                 sh 'docker exec php-fpm php artisan key:generate'
@@ -68,7 +73,7 @@ pipeline {
                 // Run health checks and tests
                 // Modify the commands below based on your specific testing needs
                 //sh 'docker exec php-fpm vendor/bin/phpunit'
-              //  sh 'docker exec webserver curl http://localhost:81/health-check'
+                //sh 'docker exec webserver curl http://localhost:81/health-check'
             }
         }
 
