@@ -57,14 +57,14 @@ pipeline {
                 }
             }
         }
-
+/*
         stage('Push to Docker Hub') {
             steps {
                 sh 'docker push banisedki/php-fpm:latest' 
                 sh 'docker push banisedki/nxtya_nginx:latest'
             }
         }
-
+*/
         stage('Deploy') {
             steps {
                 sh "COMPOSE_HTTP_TIMEOUT=480 docker-compose -f ${COMPOSE_FILE} up -d"
