@@ -38,7 +38,7 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        /*stage('Deploy') {
             steps {
                 script {
                     if (env.PREVIOUS_BUILD == 'blue') {
@@ -60,8 +60,40 @@ pipeline {
                         sh 'docker exec php-fpm-blue php artisan view:clear'
                         sh 'docker exec php-fpm-blue php artisan config:clear'
                     }
-                }
+                }*/
+        stage('Deploy') {
+    steps {
+        script {
+            def blueExists = fileExists('docker-compose-blue.yml')
+            def greenExists = fileExists('docker-compose.yml')
+            
+            if (!blueExists && !greenExists) {
+                // No blue or green environment, install using docker-compose.yml
+                COMPOSE_FILE = 'docker-compose.yml'
+                env.PREVIOUS_BUILD = ''
+            } else if (greenExists) {
+                // Green environment exists, install using docker-compose.yml
+                COMPOSE_FILE = 'docker-compose.yml'
+                env.PREVIOUS_BUILD = ''
+            } else if (blueExists) {
+                // Blue environment exists, install using docker-compose-blue.yml
+                COMPOSE_FILE = 'docker-compose-blue.yml'
+                env.PREVIOUS_BUILD = 'blue'
+            }
+            
+            if (blueExists || greenExists) {
+                sh "docker exec php-fpm${env.PREVIOUS_BUILD == 'blue' ? '-blue' : ''} composer install --ignore-platform-reqs --optimize-autoloader --prefer-dist --no-scripts -o --no-dev"
+                sh "docker exec php-fpm${env.PREVIOUS_BUILD == 'blue' ? '-blue' : ''} chmod -R 0777 /var/www/html/storage"
+                sh "docker exec php-fpm${env.PREVIOUS_BUILD == 'blue' ? '-blue' : ''} php artisan key:generate"
+                sh "docker exec php-fpm${env.PREVIOUS_BUILD == 'blue' ? '-blue' : ''} php artisan config:cache"
+                sh "docker exec php-fpm${env.PREVIOUS_BUILD == 'blue' ? '-blue' : ''} php artisan view:clear"
+                sh "docker exec php-fpm${env.PREVIOUS_BUILD == 'blue' ? '-blue' : ''} php artisan config:clear"
+            }
+        }
+    
 
+            
+        
                 // Stop the inactive environment
                 sh "docker-compose -f ${COMPOSE_FILE} down --remove-orphans"
 
