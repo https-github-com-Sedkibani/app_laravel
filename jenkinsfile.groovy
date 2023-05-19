@@ -9,16 +9,46 @@ pipeline {
     }
 
     stages {
-        stage('Prepare') {
-            steps {
-               //sh 'rm -rf ./infrastructure'
-               //sh 'rm -rf docker-compose.yml'
-            //    sh 'cp -r /var/www/infrastructure/ .'
-              //  sh 'cp -r /var/www/infrastructure/docker/docker-compose.yml docker-compose.yml'
-                //sh 'cp -r .env.example .env'
-                sh 'ansible-playbook -i ./infrastructure/ansible/inventory/hosts.yml ./infrastructure/ansible/playbooks/install-docker.yml'
+       stage('Prepare') {
+    steps {
+        script {
+            def blueExists = fileExists('docker-compose-blue.yml')
+            def greenExists = fileExists('docker-compose.yml')
+
+            if (blueExists && greenExists) {
+                // Both blue and green environments exist
+                def blueComposerExists = sh(
+                    script: 'docker-compose -f docker-compose-blue.yml exec php-fpm-blue which composer',
+                    returnStatus: true
+                )
+
+                if (blueComposerExists == 0) {
+                    // Blue environment has composer, set COMPOSE_FILE to blue
+                    COMPOSE_FILE = 'docker-compose-blue.yml'
+                } else {
+                    // Blue environment does not have composer, set COMPOSE_FILE to green
+                    COMPOSE_FILE = 'docker-compose.yml'
+                }
+            } else if (blueExists) {
+                // Only blue environment exists
+                COMPOSE_FILE = 'docker-compose-blue.yml'
+            } else if (greenExists) {
+                // Only green environment exists
+                COMPOSE_FILE = 'docker-compose.yml'
+            } else {
+                // No blue or green environment exists, install with green (default)
+                COMPOSE_FILE = 'docker-compose.yml'
             }
+
+            sh "rm -rf ./infrastructure"
+            sh "rm -rf docker-compose.yml"
+            sh "cp -r /var/www/infrastructure/ ."
+            sh "cp -r /var/www/infrastructure/docker/${COMPOSE_FILE} docker-compose.yml"
+            sh "cp -r .env.example .env"
+            sh "ansible-playbook -i ./infrastructure/ansible/inventory/hosts.yml ./infrastructure/ansible/playbooks/install-docker.yml"
         }
+    }
+}
 
       
             stage('Build') {
