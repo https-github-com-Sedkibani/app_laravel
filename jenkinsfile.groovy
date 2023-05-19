@@ -95,7 +95,7 @@ pipeline {
                 sh 'docker exec  php-fpm php artisan config:cache'
                 sh 'docker exec  php-fpm php artisan view:clear'
                 sh 'docker exec  php-fpm php artisan config:clear'
-                                        sh 'docker-compose -f docker-compose.blue.yml down --remove-orphans'
+                                        sh 'docker-compose -f docker-compose.blue-yml down --remove-orphans'
 
                   //            sh 'rm -rf ./infrastructure'
               // sh 'rm -rf docker-compose.yml'
