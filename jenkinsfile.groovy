@@ -12,6 +12,7 @@ pipeline {
         stage('Prepare') {
             steps {
                 sh 'rm -rf ./${BLUE_INFRA_DIR}'
+                sh 'rm -rf ./${GREEN_INFRA_DIR}'
                 sh 'rm -rf ./docker-compose.yml'
                 
                 script {
@@ -27,23 +28,25 @@ pipeline {
                     
                     if (PREVIOUS_BUILD == 'green') {
                         COMPOSE_FILE = 'docker-compose.yml'
+                        sh "cp -r /var/www/${BLUE_INFRA_DIR}/ ./${BLUE_INFRA_DIR}"
                     } else {
                         COMPOSE_FILE = 'docker-compose-blue.yml'
+                        sh "cp -r /var/www/${GREEN_INFRA_DIR}/ ./${GREEN_INFRA_DIR}"
                     }
                     
-                    sh "cp -r /var/www/${GREEN_INFRA_DIR}/ ."
-                    sh "cp -r /var/www/${GREEN_INFRA_DIR}/docker/docker-compose.yml ."
+                    sh "cp -r ./${BLUE_INFRA_DIR}/docker-compose.yml ."
+                    sh "cp -r ./${GREEN_INFRA_DIR}/docker-compose-blue.yml ."
                     sh "cp -r .env.example .env"
                     
-                    sh "ansible-playbook -i ./${GREEN_INFRA_DIR}/ansible/inventory/hosts.yml ./${GREEN_INFRA_DIR}/ansible/playbooks/install-docker.yml"
+                    sh "ansible-playbook -i ./${BLUE_INFRA_DIR}/ansible/inventory/hosts.yml ./${BLUE_INFRA_DIR}/ansible/playbooks/install-docker.yml"
                 }
             }
         }
 
         stage('Build') {
             steps {
-                sh "docker build -t banisedki/php-fpm:latest -f ./${GREEN_INFRA_DIR}/docker/php-fpm/Dockerfile ."
-                sh "docker build -t banisedki/nxtya_nginx:latest -f ./${GREEN_INFRA_DIR}/docker/nginx/Dockerfile ."
+                sh "docker build -t banisedki/php-fpm:latest -f ./${GREEN_INFRA_DIR}/php-fpm/Dockerfile ."
+                sh "docker build -t banisedki/nxtya_nginx:latest -f ./${GREEN_INFRA_DIR}/nginx/Dockerfile ."
             }
         }
 
