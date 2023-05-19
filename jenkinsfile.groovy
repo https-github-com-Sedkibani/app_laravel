@@ -9,7 +9,7 @@ pipeline {
     }
 
     stages {
-      /* stage('Prepare') {
+       stage('Prepare') {
     steps {
         script {
             def blueExists = fileExists('docker-compose-blue.yml')
@@ -48,7 +48,7 @@ pipeline {
             sh "ansible-playbook -i ./infrastructure/ansible/inventory/hosts.yml ./infrastructure/ansible/playbooks/install-docker.yml"
         }
     }
-}*/
+}
         /*stage('Prepare') {
     steps {
         script {
