@@ -9,16 +9,70 @@ pipeline {
     }
 
     stages {
-        stage('Prepare') {
-            steps {
-               //sh 'rm -rf ./infrastructure'
-               //sh 'rm -rf docker-compose.yml'
-                sh 'cp -r /var/www/infrastructure/ .'
-                sh 'cp -r /var/www/infrastructure/docker/docker-compose.yml docker-compose.yml'
-                sh 'cp -r .env.example .env'
-                sh 'ansible-playbook -i ./infrastructure/ansible/inventory/hosts.yml ./infrastructure/ansible/playbooks/install-docker.yml'
+        
+        
+     stage('Prepare') {
+    steps {
+        script {
+            def blueExists = fileExists('docker-compose-blue.yml')
+            def greenExists = fileExists('docker-compose.yml')
+
+            if (blueExists && greenExists) {
+                // Both blue and green environments exist
+                def blueComposerExists = sh(
+                    script: 'docker-compose -f docker-compose-blue.yml exec php-fpm-blue which composer',
+                    returnStatus: true
+                )
+
+                if (blueComposerExists == 0) {
+                    // Blue environment has composer, set COMPOSE_FILE to blue
+                    COMPOSE_FILE = 'docker-compose-blue.yml'
+                    COPY_TO_DIR = 'infrastructure'
+                    REMOVE_FROM_DIR = 'infrastructure1'
+                } else {
+                    // Blue environment does not have composer, set COMPOSE_FILE to green
+                    COMPOSE_FILE = 'docker-compose.yml'
+                    COPY_TO_DIR = 'infrastructure1'
+                    REMOVE_FROM_DIR = 'infrastructure'
+                }
+            } else if (blueExists) {
+                // Only blue environment exists
+                COMPOSE_FILE = 'docker-compose-blue.yml'
+                COPY_TO_DIR = 'infrastructure'
+                REMOVE_FROM_DIR = 'infrastructure1'
+            } else if (greenExists) {
+                // Only green environment exists
+                COMPOSE_FILE = 'docker-compose.yml'
+                COPY_TO_DIR = 'infrastructure1'
+                REMOVE_FROM_DIR = 'infrastructure'
+            } else {
+                // No blue or green environment exists, install with green (default)
+                COMPOSE_FILE = 'docker-compose.yml'
+                COPY_TO_DIR = 'infrastructure1'
+                REMOVE_FROM_DIR = 'infrastructure'
             }
+
+            // Check the previous build and set PREVIOUS_BUILD accordingly
+            def previousBuild = currentBuild.previousBuild
+            if (previousBuild != null) {
+                def previousBuildResult = previousBuild.result
+                if (previousBuildResult == 'SUCCESS') {
+                    PREVIOUS_BUILD = 'green'
+                } else if (previousBuildResult == 'ABORTED' || previousBuildResult == 'FAILURE') {
+                    PREVIOUS_BUILD = 'blue'
+                }
+            }
+
+            sh "rm -rf ./${REMOVE_FROM_DIR}"
+            sh "rm -rf docker-compose.yml"
+            sh "cp -r /var/www/${COPY_TO_DIR}/ ."
+            sh "cp -r /var/www/${COPY_TO_DIR}/docker/${COMPOSE_FILE} docker-compose.yml"
+            sh "cp -r .env.example .env"
+            sh "ansible-playbook -i ./${COPY_TO_DIR}/ansible/inventory/hosts.yml ./${COPY_TO_DIR}/ansible/playbooks/install-docker.yml"
         }
+    }
+}
+
 
       
             stage('Build') {
