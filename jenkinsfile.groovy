@@ -77,7 +77,7 @@ pipeline {
                 // Run health checks and tests
                 // Modify the commands below based on your specific testing needs
                 //sh 'docker exec php-fpm vendor/bin/phpunit'
-                sh 'docker exec webserver curl http://app.nxtya.com:81/'
+                sh 'docker exec webserver-blue curl http://app.nxtya.com:81/'
             }
         }
 
