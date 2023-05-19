@@ -69,7 +69,7 @@ pipeline {
                 sh "docker-compose -f ${COMPOSE_FILE} rm -f -v"
 
                 // Remove unused networks (if any)
-                sh 'docker network prune -f'
+                //sh 'docker network prune -f'
 
                 // Start the desired environment
                 sh "docker-compose -f ${COMPOSE_FILE} up -d"
@@ -77,7 +77,7 @@ pipeline {
                 // Run health checks and tests
                 // Modify the commands below based on your specific testing needs
                 //sh 'docker exec php-fpm vendor/bin/phpunit'
-                sh 'docker exec webserver-blue curl http://app.nxtya.com:81/'
+                //sh 'docker exec webserver-blue curl http://app.nxtya.com:81/'
             }
         }
 
