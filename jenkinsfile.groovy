@@ -104,7 +104,7 @@ pipeline {
                // sh 'docker network prune -f'
 
                 // Start the desired environment
-                sh "docker-compose -f ${COMPOSE_FILE} up -d"
+                sh "docker-compose -f ${COMPOSE_FILE} up -f"
 
                 // Run health checks and tests
                 // Modify the commands below based on your specific testing needs
