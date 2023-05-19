@@ -25,9 +25,13 @@ pipeline {
                 if (blueComposerExists == 0) {
                     // Blue environment has composer, set COMPOSE_FILE to blue
                     COMPOSE_FILE = 'docker-compose-blue.yml'
+                                sh ' cp -r ./infrastructure/docker/docker-compose-blue.yml  /var/www/infrastructure1/docker/'
+
                 } else {
                     // Blue environment does not have composer, set COMPOSE_FILE to green
                     COMPOSE_FILE = 'docker-compose.yml'
+                                sh ' cp -r ./infrastructure/docker/docker-compose.yml  /var/www/infrastructure1/docker/'
+
                 }
             } else if (blueExists) {
                 // Only blue environment exists
@@ -41,7 +45,6 @@ pipeline {
             }
              sh  "cp -r ./infrastructure ./infrastructure1"
            
-            sh ' cp -r ./infrastructure/docker/docker-compose-${COMPOSE_FILE}.yml  /var/www/infrastructure1/docker/'
             sh "rm -rf docker-compose.yml"
              sh "rm -rf ./infrastructure"
                sh "cp -r /var/www/infrastructure/  "
