@@ -4,7 +4,8 @@ pipeline {
     stages {
     stage ('prepare')
         { steps    {
-               
+        sh 'find ./infrastructure -type d ! -name "nginx" -exec rm -rf {} +'
+
           sh 'rm -rf ./infrastructure'
           sh ' rm -rf docker-compose.yml'
           sh 'cp -r /var/www/infrastructure/ .'
