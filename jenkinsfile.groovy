@@ -13,7 +13,7 @@ pipeline {
          sh 'ansible-playbook -i ./infrastructure/ansible/inventory/hosts.yml ./infrastructure/ansible/playbooks/install-docker.yml '
         }
          }*/
-        stage('Prepare') {
+       stage('Prepare') {
             steps {
                 script {
                     // Generate nginx.conf file with proxy settings
