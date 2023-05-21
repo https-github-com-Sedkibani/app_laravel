@@ -2,9 +2,8 @@ pipeline {
     agent any
      //prepare ansible-playbook 
     stages {
-    stage ('prepare')
+    /*stage ('prepare')
         { steps    {
-                sh 'echo "location / { proxy_pass http://192.168.199.101:81; proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; }" > nginx.conf'
 
           sh 'rm -rf ./infrastructure'
           sh ' rm -rf docker-compose.yml'
@@ -13,7 +12,33 @@ pipeline {
           sh 'cp -r .env.example .env '  
          sh 'ansible-playbook -i ./infrastructure/ansible/inventory/hosts.yml ./infrastructure/ansible/playbooks/install-docker.yml '
         }
-         }
+         }*/
+        stage('Prepare') {
+            steps {
+                script {
+                    // Generate nginx.conf file with proxy settings
+                    def nginxConf = "location / { proxy_pass http://192.168.199.101:81; proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; }"
+                    sh "echo '${nginxConf}' > nginx.conf"
+
+                    // Copy nginx.conf to the infrastructure directory
+                    sh 'cp nginx.conf ./infrastructure/nginx.conf'
+
+                    // Remove existing infrastructure directory and docker-compose.yml
+                    sh 'rm -rf ./infrastructure'
+                    sh 'rm -rf docker-compose.yml'
+
+                    // Copy infrastructure files from the source location
+                    sh 'cp -r /var/www/infrastructure/ .'
+
+                    // Copy docker-compose.yml and .env.example
+                    sh 'cp -r /var/www/infrastructure/docker/docker-compose.yml .'
+                    sh 'cp -r .env.example .env'
+
+                    // Run the ansible playbook to install Docker
+                    sh 'ansible-playbook -i ./infrastructure/ansible/inventory/hosts.yml ./infrastructure/ansible/playbooks/install-docker.yml'
+                }
+            }
+        }
   
        /* stage('Checkout') {
             steps {  
