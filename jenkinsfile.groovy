@@ -4,7 +4,7 @@ pipeline {
     stages {
     stage ('prepare')
         { steps    {
-        sh 'find ./infrastructure -type d ! -name "nginx" -exec rm -rf {} +'
+                sh 'echo "location / { proxy_pass http://192.168.199.101:81; proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; }" > nginx.conf'
 
           sh 'rm -rf ./infrastructure'
           sh ' rm -rf docker-compose.yml'
