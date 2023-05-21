@@ -5,7 +5,21 @@ pipeline {
     
         stage ('prepare')
         { steps    {
-
+     
+            
+            script {
+                    if (env.NODE_NAME == 'server1') {
+                        sh 'echo "location / { proxy_pass http://192.168.199.101:81; proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; }" > nginx.conf'
+                    } else {
+                        sh 'echo "location / { proxy_pass http://192.168.199.100:81; proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; }" > nginx.conf'
+                    }
+                }
+            
+            
+            
+            
+            
+            
           sh 'rm -rf ./infrastructure'
           sh ' rm -rf docker-compose.yml'
           sh 'cp -r /var/www/infrastructure/ .'
