@@ -2,12 +2,7 @@ pipeline {
     agent any
      //prepare ansible-playbook 
     stages {
-        
-     
-        
-        
-        
-        
+         
     stage ('prepare')
         { steps    {
                
