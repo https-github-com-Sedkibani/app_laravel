@@ -3,29 +3,8 @@ pipeline {
      //prepare ansible-playbook 
     stages {
         
+     
         
-         stage('Compare Changes') {
-            steps {
-                script {
-                    // Retrieve the current commit ID
-                    def currentCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
-                    
-                    // Retrieve the last commit ID from the previous build's stored value
-                    def previousCommit = lastCommit ?: ''
-                    
-                    // Compare the current and previous commit IDs
-                    if (currentCommit == previousCommit) {
-                        echo 'No changes detected. Skipping subsequent stages.'
-                        // Mark the build as successful and skip to the end
-                        currentBuild.result = 'SUCCESS'
-                        return
-                    }
-                    
-                    // Store the current commit ID for future builds
-                    lastCommit = currentCommit
-                }
-            }
-        }
         
         
         
