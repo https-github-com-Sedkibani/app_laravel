@@ -2,10 +2,9 @@ pipeline {
     agent any
      //prepare ansible-playbook 
     stages {
-    
-        stage ('prepare')
+    stage ('prepare')
         { steps    {
-
+               
           sh 'rm -rf ./infrastructure'
           sh ' rm -rf docker-compose.yml'
           sh 'cp -r /var/www/infrastructure/ .'
@@ -13,8 +12,8 @@ pipeline {
           sh 'cp -r .env.example .env '  
          sh 'ansible-playbook -i ./infrastructure/ansible/inventory/hosts.yml ./infrastructure/ansible/playbooks/install-docker.yml '
         }
-        }
-     
+         }
+  
        /* stage('Checkout') {
             steps {  
                 git branch: 'main', credentialsId: 'SedkiBani', url: 'git@github.com:https-github-com-Sedkibani/app_laravel.git'
