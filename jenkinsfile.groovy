@@ -5,11 +5,10 @@ pipeline {
          
     stage ('prepare')
         { steps    {
-               
-          sh 'rm -rf ./infrastructure'
-          sh ' rm -rf docker-compose.yml'
-          sh 'cp -r /var/www/infrastructure/ .'
-          sh 'cp -r  /var/www/infrastructure/docker/docker-compose.yml . '
+         sh 'rm -rf ./infrastructure'
+         sh ' rm -rf docker-compose.yml'
+         sh 'cp -r /var/www/infrastructure/ .'
+         sh 'cp -r  /var/www/infrastructure/docker/docker-compose.yml . '
          sh 'cp -r .env.example .env '  
          sh 'ansible-playbook -i ./infrastructure/ansible/inventory/hosts.yml ./infrastructure/ansible/playbooks/install-docker.yml '
         }
@@ -44,7 +43,7 @@ pipeline {
                             sh 'docker push banisedki/php-fpm:latest' 
                             sh 'docker push banisedki/nxtya_nginx:latest'
                   }
-                                   }*/
+                                  }*/
      
         stage('Deploy') {
             steps {
@@ -57,18 +56,15 @@ pipeline {
                 sh 'docker exec  php-fpm php artisan config:cache'
                 sh 'docker exec  php-fpm php artisan view:clear'
                 sh 'docker exec  php-fpm php artisan config:clear'
-        
-          
-                
             }
         
     }
        stage('Clean') {
             steps {
-               // Stop and remove old  docker container
-               // sh 'docker stop $(docker ps -a -q)'
+               //Stop and remove old  docker container
+               //sh 'docker stop $(docker ps -a -q)'
                 //sh 'docker rm $(docker ps -a -q)'
-          sh   'docker system prune -af --filter "until=24h" '
+                  sh   'docker system prune -af --filter "until=24h" '
             }
         }
 }
