@@ -44,7 +44,7 @@ pipeline {
                             sh 'docker push banisedki/nxtya_nginx:latest'
                      
                   }
-                                  
+       }             
      
         stage('Deploy') {
             steps {
