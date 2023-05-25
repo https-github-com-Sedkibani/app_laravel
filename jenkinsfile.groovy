@@ -22,7 +22,7 @@ pipeline {
         
         stage('Build') {
             steps {
-                sh' sudo chmod 666 /var/run/docker.sock'
+                
                 sh 'docker build -t banisedki/php-fpm:latest -f ./infrastructure/docker/php-fpm/Dockerfile . '
                 
                 sh 'docker build -t banisedki/nxtya_nginx:latest -f ./infrastructure/docker/nginx/Dockerfile . '
