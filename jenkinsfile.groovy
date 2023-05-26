@@ -39,14 +39,14 @@ pipeline {
                   }
             }           
             }   
-        /* 
+        
        stage('Push to Docker Hub') {
             steps {
                             sh 'docker push banisedki/php-fpm:latest' 
                             sh 'docker push banisedki/nxtya_nginx:latest'
                      
                   }
-       }    */         
+       }    
      
         stage('Deploy') {
             steps {
